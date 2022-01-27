@@ -1,3 +1,5 @@
+import 'package:login/Customer/UI/home_module.dart';
+import 'package:login/Vendor/UI/Profile.dart';
 import 'package:login/screens/home_screen.dart';
 import 'package:login/screens/registration_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -18,6 +20,12 @@ class _LoginScreenState extends State<LoginScreen> {
   // editing controller
   final TextEditingController emailController = new TextEditingController();
   final TextEditingController passwordController = new TextEditingController();
+
+  Color colorCustomer = Colors.green;
+  Color colorVendor = Colors.white;
+
+  bool isCustomerSelected = true;
+  bool isVendorSelected = false;
 
   // firebase
   final _auth = FirebaseAuth.instance;
@@ -86,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final loginButton = Material(
       elevation: 5,
       borderRadius: BorderRadius.circular(30),
-      color: Colors.redAccent,
+      color: Colors.green,
       child: MaterialButton(
           padding: EdgeInsets.fromLTRB(20, 15, 20, 15),
           minWidth: MediaQuery.of(context).size.width,
@@ -121,6 +129,72 @@ class _LoginScreenState extends State<LoginScreen> {
                           "assets/logo.jpeg",
                           fit: BoxFit.contain,
                         )),
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                splashFactory: NoSplash.splashFactory,
+                                elevation: 0,
+                                primary: colorCustomer,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20.0)),
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  colorVendor = Colors.white;
+                                  colorCustomer = Colors.green;
+                                  isVendorSelected = false;
+                                  isCustomerSelected = true;
+                                });
+                              },
+                              child: Text(
+                                "Customer",
+                                style: isCustomerSelected
+                                    ? const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 17,
+                                      )
+                                    : const TextStyle(
+                                        color: Colors.black,
+                                      ),
+                              )),
+                        ),
+                        Expanded(
+                            child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  splashFactory: NoSplash.splashFactory,
+                                  elevation: 0,
+                                  primary: colorVendor,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(20.0)),
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    colorCustomer = Colors.white;
+                                    colorVendor = Colors.green;
+                                    isVendorSelected = true;
+                                    isCustomerSelected = false;
+                                  });
+                                },
+                                child: Text(
+                                  "Vendor",
+                                  style: isVendorSelected
+                                      ? const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 17,
+                                        )
+                                      : const TextStyle(
+                                          color: Colors.black,
+                                        ),
+                                ))),
+                      ],
+                    ),
                     SizedBox(height: 45),
                     emailField,
                     SizedBox(height: 25),
@@ -167,8 +241,17 @@ class _LoginScreenState extends State<LoginScreen> {
             .signInWithEmailAndPassword(email: email, password: password)
             .then((uid) => {
                   Fluttertoast.showToast(msg: "Login Successful"),
-                  Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (context) => HomeScreen())),
+                  isCustomerSelected == false
+                      ? Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const upload()),
+                        )
+                      : Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const home_module()),
+                        ),
                 });
       } on FirebaseAuthException catch (error) {
         switch (error.code) {
